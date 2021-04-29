@@ -31,4 +31,16 @@ app.get("/", async (req, res) => {
   res.status(200).json(JSON.stringify(users));
 });
 
+app.put("/:id", async (req, res) => {
+  const body = req.body;
+  await db.collection("users").doc(req.params.id).update(body);
+  res.status(200).json({ "message": "user updated" });
+});
+
+app.delete("/:id", async (req, res) => {
+  await db.collection("users").doc(req.params.id).delete();
+  
+  res.status(204).send();
+});
+
 exports.user = functions.https.onRequest(app);
