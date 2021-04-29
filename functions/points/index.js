@@ -1,16 +1,12 @@
 const functions = require("firebase-functions");
-const admin = require('firebase-admin');
+const firebaseApp = require("../db.js");
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors')({origin: true})
 const app = express();
-const serviceAccount  = require("../key.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-app.use(cors({ origin: true }));
+app.use(cors);
 
-const db = admin.firestore();
+const db = firebaseApp.admin.firestore();
 
 app.post("/users/:id/points/", async (req, res) => {
   const points = req.body;
@@ -37,4 +33,4 @@ app.delete("/users/:id/points/:point_id", async (req, res) => {
   res.status(204).send();
 });
 
-exports.user = functions.https.onRequest(app);
+exports.point = functions.https.onRequest(app);

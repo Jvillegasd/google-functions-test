@@ -1,16 +1,12 @@
 const functions = require("firebase-functions");
-const admin = require('firebase-admin');
+const firebaseApp = require("../db.js");
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors')({origin: true})
 const app = express();
-const serviceAccount  = require("../key.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-app.use(cors({ origin: true }));
+app.use(cors);
 
-const db = admin.firestore();
+const db = firebaseApp.admin.firestore();
 
 app.post("/", async (req, res) => {
   const user = req.body;
@@ -31,15 +27,25 @@ app.get("/", async (req, res) => {
   res.status(200).json(JSON.stringify(users));
 });
 
+app.get("/:id", async (req, res) => {
+  const userId = req.params.id;
+  const user = await db.collection("users").doc(userId).get();
+
+  res.status(200).json(JSON.stringify(user));
+});
+
 app.put("/:id", async (req, res) => {
   const body = req.body;
-  await db.collection("users").doc(req.params.id).update(body);
+  const userId = req.params.id;
+
+  await db.collection("users").doc(userId).update(body);
   res.status(200).json({ "message": "user updated" });
 });
 
 app.delete("/:id", async (req, res) => {
-  await db.collection("users").doc(req.params.id).delete();
-  
+  const userId = req.params.id;
+
+  await db.collection("users").doc(userId).delete();
   res.status(204).send();
 });
 
